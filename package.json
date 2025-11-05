@@ -1,6 +1,6 @@
 {
 	"name": "@mmankos/fes",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A Facebook event scraper that extracts events via both HTML-embedded data and the GraphQL API.",
 	"keywords": [
 		"facebook",
@@ -26,7 +26,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"devDependencies": {
+	"dependencies": {
 		"@sparticuz/chromium": "^141.0.0",
 		"axios": "^1.13.2",
 		"p-limit": "^7.2.0",
