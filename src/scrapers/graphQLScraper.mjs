@@ -1,7 +1,7 @@
 import chromium from "@sparticuz/chromium";
 import axios from "axios";
 import puppeteer from "puppeteer-core";
-import { SourceTypes } from "../utils/constants.mjs";
+import { PageElements, SourceTypes } from "../utils/constants.mjs";
 import { logError, replaceParamValue } from "../utils/utils.mjs";
 import { htmlScrapeEventByID } from "./htmlScraper.mjs";
 
@@ -20,15 +20,11 @@ const launchBrowser = async (url) => {
 };
 
 const handleDialogWindows = async (page, delayMs) => {
-	await page.click('[role="button"][aria-label="Decline optional cookies"]');
+	(await page.$(PageElements.DeclineCookies))?.click();
 	await new Promise((resolve) => setTimeout(resolve, delayMs));
 	await page.click("body", { force: true });
 	await new Promise((resolve) => setTimeout(resolve, delayMs));
 	await page.keyboard.press("Escape");
-};
-
-const groupSeeMore = async (page) => {
-	await page.click('[role="button"][aria-label="See more"]');
 };
 
 const waitForGraphQLRequest = (page) => {
@@ -127,7 +123,7 @@ export const captureGraphQL = async (url, sourceType) => {
 	const graphqlPromise = waitForGraphQLRequest(page);
 
 	if (sourceType === SourceTypes.Group) {
-		await groupSeeMore(page);
+		await page.click(PageElements.GroupSeeMoreEvents);
 	}
 
 	const graphqlRequest = await scrollUntilGraphQL(

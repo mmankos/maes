@@ -125,6 +125,6 @@ export const scrapeEvents = async (
 		enableCursor();
 		logError(err);
 
-		return [];
+		throw err;
 	}
 };

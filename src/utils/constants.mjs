@@ -13,3 +13,8 @@ export const UrlModifiers = Object.freeze({
 	PagePostfix: "/upcoming_hosted_events",
 	EventPrefix: "https://www.facebook.com/events/",
 });
+
+export const PageElements = Object.freeze({
+	DeclineCookies: '[role="button"][aria-label="Decline optional cookies"]',
+	GroupSeeMoreEvents: '[role="button"][aria-label="See more"]',
+});
