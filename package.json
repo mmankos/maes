@@ -1,6 +1,6 @@
 {
 	"name": "@mmankos/fes",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "A Facebook event scraper that extracts events via both HTML-embedded data and the GraphQL API.",
 	"keywords": [
 		"facebook",
