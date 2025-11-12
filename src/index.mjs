@@ -29,6 +29,7 @@ import {
  * @param {number} [options.httpReqRetries=5] - Maximum number of retry attempts per request.
  * @param {number} [options.httpReqRetryDelay=1000] - Delay (in milliseconds) between retry attempts after a failed request.
  * @param {number} [options.httpReqTimeout=5000] - Timeout (in milliseconds) for each HTTP request before it is aborted.
+ * @param {boolean} [options.isAWS=true] - If true, only one puppeteer-core launch can be invoked concurrently, due to AWS Lambda limitations.
  * @param {string} [options.outputFile] - Optional file path to save the scraped events as JSON.
  *
  * @returns {Promise<Array>} Resolves to an array of scraped event objects.
@@ -41,6 +42,7 @@ export const scrapeEvents = async (
 		httpReqRetries: 5,
 		httpReqRetryDelay: 1000,
 		httpReqTimeout: 5000,
+		isAWS: true,
 		outputFile: undefined,
 	},
 ) => {
@@ -49,17 +51,20 @@ export const scrapeEvents = async (
 
 		Object.assign(options, {
 			concurrency: options.concurrency ?? 10,
+			derestrict: options.derestrict ?? false,
 			httpReqRetries: options.httpReqRetries ?? 5,
 			httpReqRetryDelay: options.httpReqRetryDelay ?? 1000,
 			httpReqTimeout: options.httpReqTimeout ?? 5000,
+			isAWS: options.isAWS ?? true,
 			outputFile: options.outputFile ?? undefined,
-			derestrict: options.derestrict ?? false,
 		});
 
 		const events = [];
 		const eventIDs = new Set();
 		const standaloneEventIDs = new Set();
-		const limit = pLimit(options.concurrency);
+		const sourceLimit = pLimit(options.concurrency);
+		// only one puppeteer-core browser launch at a time on AWS Lambda is allowed
+		const graphQLLimit = pLimit(options.isAWS ? 1 : 10);
 		const spinner = new Spinner();
 
 		const tasks = Object.entries(sourceTypes).flatMap(
@@ -77,7 +82,7 @@ export const scrapeEvents = async (
 					);
 				}
 				return sources.map((source) =>
-					limit(async () => {
+					sourceLimit(async () => {
 						const url = constructUrl(sourceType, source);
 						const hasNextPage = await htmlScrapeEvents(
 							url,
@@ -89,13 +94,15 @@ export const scrapeEvents = async (
 						);
 
 						if (sourceType !== SourceTypes.EventID && hasNextPage) {
-							await graphQLScrapeEvents(
-								url,
-								sourceType,
-								events,
-								eventIDs,
-								options,
-								spinner,
+							await graphQLLimit(() =>
+								graphQLScrapeEvents(
+									url,
+									sourceType,
+									events,
+									eventIDs,
+									options,
+									spinner,
+								),
 							);
 						}
 					}),

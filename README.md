@@ -30,6 +30,7 @@ const options = {
 	httpReqRetries: 5, // retry failed requests
 	httpReqRetryDelay: 1000, // wait 1s between retries
 	httpReqTimeout: 5000, // timeout each HTTP request after 5s
+	isAWS: true, // if true abide by the rules set by AWS Lambda (max one puppeteer browser instance at a time)
 	outputFile: "events.json", // optionally save results to file
 };
 
