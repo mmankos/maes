@@ -26,6 +26,7 @@ import {
  * @param {Object} [options] - Optional scraping configuration.
  * @param {number} [options.concurrency=10] - Maximum number of async tasks to run in parallel.
  * @param {boolean} [options.derestrict=false] - If true, bypasses scraping restrictions (use responsibly).
+ * @param {number} [options.eventsPerSourceLimit=10] - Maximum number of events to be scraped per source, unlimited if undefined.
  * @param {number} [options.httpReqRetries=5] - Maximum number of retry attempts per request.
  * @param {number} [options.httpReqRetryDelay=1000] - Delay (in milliseconds) between retry attempts after a failed request.
  * @param {number} [options.httpReqTimeout=5000] - Timeout (in milliseconds) for each HTTP request before it is aborted.
@@ -39,6 +40,7 @@ export const scrapeEvents = async (
 	options = {
 		concurrency: 10,
 		derestrict: false,
+		eventsPerSourceLimit: undefined,
 		httpReqRetries: 5,
 		httpReqRetryDelay: 1000,
 		httpReqTimeout: 5000,
@@ -52,6 +54,7 @@ export const scrapeEvents = async (
 		Object.assign(options, {
 			concurrency: options.concurrency ?? 10,
 			derestrict: options.derestrict ?? false,
+			eventsPerSourceLimit: options.eventsPerSourceLimit ?? undefined,
 			httpReqRetries: options.httpReqRetries ?? 5,
 			httpReqRetryDelay: options.httpReqRetryDelay ?? 1000,
 			httpReqTimeout: options.httpReqTimeout ?? 5000,
@@ -64,7 +67,7 @@ export const scrapeEvents = async (
 		const standaloneEventIDs = new Set();
 		const sourceLimit = pLimit(options.concurrency);
 		// only one puppeteer-core browser launch at a time on AWS Lambda is allowed
-		const graphQLLimit = pLimit(options.isAWS ? 1 : 10);
+		const graphQLLimit = pLimit(options.isAWS ? 1 : options.concurrency);
 		const spinner = new Spinner();
 
 		const tasks = Object.entries(sourceTypes).flatMap(

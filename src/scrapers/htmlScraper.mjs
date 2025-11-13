@@ -128,7 +128,7 @@ const parseEventData = (
 	event.description = eventDescription?.text;
 
 	event.cover_photo = {};
-	event.cover_photo.photo = eventCoverPhoto?.photo?.full_image?.uri;
+	event.cover_photo.image_url = eventCoverPhoto?.photo?.full_image?.uri;
 	event.cover_photo.accessibility_caption =
 		eventCoverPhoto?.photo?.accessibility_caption;
 
@@ -148,7 +148,7 @@ const parseEventData = (
 
 		host.name = eventHost?.name;
 		host.url = eventHost?.url;
-		host.profile_picture = eventHost?.profile_picture?.uri;
+		host.image_url = eventHost?.profile_picture?.uri;
 
 		event.hosts.push(host);
 	}
@@ -198,5 +198,5 @@ export const htmlScrapeEventDetails = async (id, options) => {
 	event.event_id = id;
 	event.event_url = url;
 
-	return event;
+	return event.is_past ? null : event;
 };

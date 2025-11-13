@@ -161,6 +161,13 @@ export const graphQLScrapeEvents = async (
 	let { postData, cookies } = await captureGraphQL(url, sourceType);
 
 	while (hasNextPage) {
+		if (
+			options.eventsPerSourceLimit &&
+			events.length >= options.eventsPerSourceLimit
+		) {
+			break;
+		}
+
 		let nodes = [];
 		let endCursor = "";
 		const data = await graphQLPostRequest(postData, cookies, options);
