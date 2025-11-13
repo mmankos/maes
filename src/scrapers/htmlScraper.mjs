@@ -116,6 +116,7 @@ export const htmlScrapeEvents = async (
 const parseEventData = (
 	event,
 	eventCoverPhoto,
+	eventCoverMedia,
 	eventDataDetailed,
 	eventDataGeneral,
 	eventDescription,
@@ -128,9 +129,12 @@ const parseEventData = (
 	event.description = eventDescription?.text;
 
 	event.cover_photo = {};
-	event.cover_photo.image_url = eventCoverPhoto?.photo?.full_image?.uri;
+	event.cover_photo.image_url =
+		eventCoverPhoto?.photo?.full_image?.uri ??
+		eventCoverMedia?.full_image?.uri;
 	event.cover_photo.accessibility_caption =
-		eventCoverPhoto?.photo?.accessibility_caption;
+		eventCoverPhoto?.photo?.accessibility_caption ??
+		eventCoverMedia?.accessibility_caption;
 
 	event.timestamp = {};
 	event.timestamp.timezone = eventTimestamp?.tz_display_name;
@@ -172,6 +176,7 @@ export const htmlScrapeEventDetails = async (id, options) => {
 	}
 
 	const eventCoverPhoto = extractJson(html, "cover_photo");
+	const eventCoverMedia = extractJson(html, "cover_media")?.[0];
 	const eventDataDetailed = extractJson(html, "event", "one_line_address");
 	const eventDataGeneral = extractJson(html, "event", "name");
 	const eventDescription = extractJson(html, "event_description");
@@ -186,6 +191,7 @@ export const htmlScrapeEventDetails = async (id, options) => {
 	parseEventData(
 		event,
 		eventCoverPhoto,
+		eventCoverMedia,
 		eventDataDetailed,
 		eventDataGeneral,
 		eventDescription,
